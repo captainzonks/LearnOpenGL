@@ -23,7 +23,7 @@
     <ProjectGuid>{87FE7810-06E1-45F5-86A1-FB93A5C4AB6F}</ProjectGuid>
     <RootNamespace>My01CreatingAWindow</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Getting-Started</ProjectName>
+    <ProjectName>LearnOpenGL</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
