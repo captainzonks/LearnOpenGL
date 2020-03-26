@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
-VisualStudioVersion = 16.0.29905.134
+VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "01_Creating-A-Window", "01_Creating-A-Window.vcxproj", "{87FE7810-06E1-45F5-86A1-FB93A5C4AB6F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LearnOpenGL", "LearnOpenGL.vcxproj", "{87FE7810-06E1-45F5-86A1-FB93A5C4AB6F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {93C2143E-86E5-4374-A538-495B96D6137E}
+		SolutionGuid = {668F3289-75E8-408B-8FB3-4A869146CDFE}
 	EndGlobalSection
 EndGlobal
