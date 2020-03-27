@@ -17,6 +17,20 @@ const char* vertexShaderSource = "#version 330 core\n"
 	"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
 	"}\0";
 
+const char* fragmentShader1Source = "#version 330 core\n"
+	"out vec4 FragColor;\n"
+	"void main()\n"
+	"{\n"
+	"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+	"}\n\0";
+
+const char* fragmentShader2Source = "#version 330 core\n"
+	"out vec4 FragColor;\n"
+	"void main()\n"
+	"{\n"
+	"   FragColor = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+	"}\n\0";
+
 int main()
 {
 	// glfw: initialize and configure
@@ -52,11 +66,18 @@ int main()
 
 	// build and compile our shader program
 	// ------------------------------------
-	// vertex shader
-	unsigned int vertexShader;
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	unsigned int fragmentShaderOrange = glCreateShader(GL_FRAGMENT_SHADER);
+	unsigned int fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
+	unsigned int shaderProgramOrange = glCreateProgram();
+	unsigned int shaderProgramYellow = glCreateProgram();
 	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
 	glCompileShader(vertexShader);
+	glShaderSource(fragmentShaderOrange, 1, &fragmentShader1Source, NULL);
+	glCompileShader(fragmentShaderOrange);
+	glShaderSource(fragmentShaderYellow, 1, &fragmentShader2Source, NULL);
+	glCompileShader(fragmentShaderYellow);
 	// check for shader compile errors
 	int success;
 	char infoLog[512];
@@ -66,25 +87,81 @@ int main()
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
-
+	glGetShaderiv(fragmentShaderOrange, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShaderOrange, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	glGetShaderiv(fragmentShaderYellow, GL_COMPILE_STATUS, &success);
+	if (!success)
+	{
+		glGetShaderInfoLog(fragmentShaderYellow, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+	}
+	// link first program object
+	glAttachShader(shaderProgramOrange, vertexShader);
+	glAttachShader(shaderProgramOrange, fragmentShaderOrange);
+	glLinkProgram(shaderProgramOrange);
+	// link second program object
+	glAttachShader(shaderProgramYellow, vertexShader);
+	glAttachShader(shaderProgramYellow, fragmentShaderYellow);
+	glLinkProgram(shaderProgramYellow);
+	// check for linking errors
+	glGetProgramiv(shaderProgramOrange, GL_LINK_STATUS, &success);
+	if (!success) 
+	{
+		glGetProgramInfoLog(shaderProgramOrange, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	glGetProgramiv(shaderProgramYellow, GL_LINK_STATUS, &success);
+	if (!success)
+	{
+		glGetProgramInfoLog(shaderProgramYellow, 512, NULL, infoLog);
+		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+	}
+	//glDeleteShader(vertexShader);
+	//glDeleteShader(fragmentShaderOrange);
+	//glDeleteShader(fragmentShaderYellow);
 	
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
-	float vertices[] =
+	float firstTriangle[] =
 	{
-		-0.5f, -0.5f, 0.0f, // bottom left
-		 0.5f, -0.5f, 0.0f, // bottom right
-		 0.0f,  0.5f, 0.0f // top
+		// first triangle
+		-0.9f, -0.5f, 0.0f,		// left
+	    -0.0f, -0.5f, 0.0f,		// right
+	    -0.45f, 0.5f, 0.0f,		// top
 	};
-	unsigned int VBO;
+	float secondTriangle[] =
+	{
+		// second triangle
+		0.0f, -0.5f, 0.0f,		// left
+		0.9f, -0.5f, 0.0f,		// right
+		0.45f, 0.5f, 0.0f		// top
+	};
 
-	glGenBuffers(1, &VBO);
+	unsigned int VBOs[2], VAOs[2];
+	glGenVertexArrays(2, VAOs);
+	glGenBuffers(2, VBOs);
+	// first triangle setup
+	// --------------------
+	// bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+	glBindVertexArray(VAOs[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// second triangle setup
+	// ---------------------
+	glBindVertexArray(VAOs[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-
+	// uncomment this call to draw in wireframe polygons.
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// render loop
 	// -----------
@@ -99,11 +176,26 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		glUseProgram(shaderProgramOrange);
+		// draw our first triangle
+		glBindVertexArray(VAOs[0]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glUseProgram(shaderProgramYellow);
+		// draw our second triangle
+		glBindVertexArray(VAOs[1]);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved, etc.)
 		// --------------------------------------------------------------------------------
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	// optional: de-allocate all resources once they've outlived their purpose:
+	// ------------------------------------------------------------------------
+	glDeleteVertexArrays(2, VAOs);
+	glDeleteBuffers(2, VBOs);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
@@ -123,5 +215,7 @@ void processInput(GLFWwindow* window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
+	// make sure the viewport matches the new window dimensions; note that width and 
+	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
